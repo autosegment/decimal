@@ -2596,3 +2596,56 @@ func ExampleNewFromFloat() {
 	//0.123123123123123
 	//-10000000000000
 }
+
+func TestString(t *testing.T) {
+	type fields struct {
+		d                  Decimal
+		AllowTrailingZeros bool
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			name: "case 1 allow trailing zeros",
+			fields: fields{
+				d:                  NewFromFloat(3).Round(2),
+				AllowTrailingZeros: true,
+			},
+			want: "3.00",
+		},
+		{
+			name: "case 1 not allow trailing zeros",
+			fields: fields{
+				d:                  NewFromFloat(3).Round(2),
+				AllowTrailingZeros: false,
+			},
+			want: "3",
+		},
+		{
+			name: "case 2",
+			fields: fields{
+				d:                  NewFromFloat(3.142857).Round(2),
+				AllowTrailingZeros: false,
+			},
+			want: "3.14",
+		},
+		{
+			name: "case 2 not round",
+			fields: fields{
+				d:                  NewFromFloat(3.142857),
+				AllowTrailingZeros: false,
+			},
+			want: "3.142857",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.fields.d.AllowTrailingZeros = tt.fields.AllowTrailingZeros
+			if got := tt.fields.d.String(); got != tt.want {
+				t.Errorf("Decimal.String() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
